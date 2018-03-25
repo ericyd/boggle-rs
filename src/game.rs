@@ -172,9 +172,7 @@ impl Guesses {
             let word_upper = guess.word.to_uppercase();
             match board.dictionary {
                 Some(ref dict_string) => {
-                    return match dict_string.lines().position(
-                        |line| line == word_upper,
-                    ) {
+                    return match dict_string.lines().position(|line| line == word_upper) {
                         Some(_) => self.valid.push(guess),
                         None => self.not_in_dict.push(guess),
                     }
