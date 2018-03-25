@@ -3,6 +3,7 @@
 /// Boards are made up of 25 Pieces
 
 use std::fmt::{self, Formatter, Display};
+use std::io::{Lines, Result};
 use rand::{thread_rng, Rng};
 use rand::distributions::{Sample, Range};
 
@@ -13,7 +14,7 @@ pub const BOARD_DIMENSIONS: i32 = 4;
 pub struct Board {
     pieces: Vec<Piece>,
     include_borders: bool,
-    pub dictionary: Option<String>,
+    pub dictionary: Option<Lines<Result<String>>>,
 }
 
 // 0-indexed row/col Piece on the Board
@@ -44,7 +45,7 @@ const CONSONANTS_FRIENDLY: [char; 14] = [
 ];
 
 impl Board {
-    pub fn new(dictionary: Option<String>) -> Board {
+    pub fn new(dictionary: Option<Lines<Result<String>>>) -> Board {
         let mut pieces = Vec::new();
 
         // generate letters

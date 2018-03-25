@@ -3,9 +3,10 @@
 extern crate term;
 extern crate rand;
 
-use std::io::{self, Write, Read};
+use std::io::{self, Write};
 use std::fs::File;
-// use std::io::BufReader;
+use std::io::{BufReader, BufRead};
+use std::io::{Lines, Result};
 
 mod board;
 mod game;
@@ -22,14 +23,9 @@ fn main() {
     println!("==================\n");
 
     let dictionary = match File::open("dictionary.txt") {
-        Ok(mut file) => {
-            let mut contents = String::new();
-            file.read_to_string(&mut contents).expect(
-                "something went wrong reading the file",
-            );
-            // let mut contents = String::new();
-            // buf_reader.read_to_string(&mut contents);
-            Some(contents)
+        Ok(file) => {
+            let lines = BufReader::new(file).lines();
+            Some(lines)
         }
         Err(_) => {
             println!(

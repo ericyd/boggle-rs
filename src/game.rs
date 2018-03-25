@@ -2,6 +2,8 @@ use board::{Board, Piece};
 use std::cmp::Ordering;
 use std::fmt::{self, Formatter, Display};
 use std::cmp::PartialEq;
+use std::io::{BufRead, BufReader, Lines, Result};
+
 // used in tests only
 #[allow(unused_imports)]
 use board;
@@ -171,8 +173,8 @@ impl Guesses {
             // if no dictionary, then word is valid by default
             let word_upper = guess.word.to_uppercase();
             match board.dictionary {
-                Some(ref dict_string) => {
-                    return match dict_string.lines().position(|line| line == word_upper) {
+                Some(lines) => {
+                    match lines.map(|ref l| l.unwrap()).position(|line| line == word_upper) {
                         Some(_) => self.valid.push(guess),
                         None => self.not_in_dict.push(guess),
                     }
