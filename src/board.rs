@@ -6,11 +6,14 @@ use std::fmt::{self, Formatter, Display};
 use rand::{thread_rng, Rng};
 use rand::distributions::{Sample, Range};
 
+pub const BOARD_DIMENSIONS: i32 = 4;
+
 // representation of the playing board
 #[derive(Debug)]
 pub struct Board {
     pieces: Vec<Piece>,
     include_borders: bool,
+    pub dictionary: Option<String>,
 }
 
 // 0-indexed row/col Piece on the Board
@@ -41,7 +44,7 @@ const CONSONANTS_FRIENDLY: [char; 14] = [
 ];
 
 impl Board {
-    pub fn new() -> Board {
+    pub fn new(dictionary: Option<String>) -> Board {
         let mut pieces = Vec::new();
 
         // generate letters
@@ -52,7 +55,7 @@ impl Board {
         let mut consonant_unfriendly_range = Range::new(0usize, CONSONANTS_UNFRIENDLY.len());
         let mut consonant_friendly_range = Range::new(0usize, CONSONANTS_FRIENDLY.len());
         let mut unfriendly_range = Range::new(0usize, 10usize);
-        for i in 0..25 {
+        for i in 0..(BOARD_DIMENSIONS.pow(2)) {
             let letter = if rng.gen() {
                 VOWELS[vowel_range.sample(&mut rng)]
             } else if unfriendly_range.sample(&mut rng) < 1 {
@@ -66,6 +69,7 @@ impl Board {
         Board {
             pieces: pieces,
             include_borders: false,
+            dictionary,
         }
     }
 
@@ -77,11 +81,12 @@ impl Board {
         // but the to_uppercase method is not very user friendly
         // tried: .map(|&x| x.to_uppercase().collect())
         for (i, l) in letters.iter().enumerate() {
-            pieces.push(Piece::new(*l, i));
+            pieces.push(Piece::new(*l, i as i32));
         }
         Board {
             pieces: pieces,
             include_borders: false,
+            dictionary: None,
         }
     }
 
@@ -95,12 +100,14 @@ impl Board {
     }
 }
 
+// TODO: make this a public `board.print` function instead of implementing display
 impl Display for Board {
     // print all pieces sequentially
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let border_length = BOARD_DIMENSIONS.pow(2) - BOARD_DIMENSIONS + 1;
         if self.include_borders {
             // write top border
-            for _i in 0..21 {
+            for _i in 0..border_length {
                 write!(f, "-")?;
             }
         }
@@ -113,10 +120,10 @@ impl Display for Board {
                 write!(f, "{}", piece)?;
             }
             // write right-border
-            if piece.col != 0 && piece.col % 4 == 0 {
+            if piece.col != 0 && piece.col % (BOARD_DIMENSIONS - 1) == 0 {
                 if self.include_borders {
                     write!(f, "|\n")?;
-                    for _i in 0..21 {
+                    for _i in 0..border_length {
                         write!(f, "-")?;
                     }
                 } else {
@@ -130,7 +137,7 @@ impl Display for Board {
 }
 
 impl Piece {
-    pub fn new(letter: char, index: usize) -> Piece {
+    pub fn new(letter: char, index: i32) -> Piece {
         let (row, col) = idx(index);
         Piece { letter, row, col }
     }
@@ -164,14 +171,10 @@ impl PartialEq for Piece {
     }
 }
 
-// i should be 0-indexed too
-// e.g. first row indices are 0-4, 5-9, 10-14, 15-19, 20-24
-fn idx(i: usize) -> (i32, i32) {
-    // These could/should be defined in a more public space?
-    let i: i32 = i as i32;
-    let num_cols = 5;
-    let num_rows = 5;
-    (i / num_rows, i % num_cols)
+// get (row, col) tuple from index
+// i should be 0-indexed
+fn idx(i: i32) -> (i32, i32) {
+    (i / BOARD_DIMENSIONS, i % BOARD_DIMENSIONS)
 }
 
 #[cfg(test)]
@@ -183,20 +186,20 @@ mod tests {
         let actual = idx(3);
         assert_eq!(actual, expected);
 
-        let expected = (0, 4);
+        let expected = (1, 0);
         let actual = idx(4);
         assert_eq!(actual, expected);
 
-        let expected = (1, 0);
+        let expected = (1, 1);
         let actual = idx(5);
         assert_eq!(actual, expected);
 
-        let expected = (1, 4);
-        let actual = idx(9);
+        let expected = (1, 3);
+        let actual = idx(7);
         assert_eq!(actual, expected);
 
-        let expected = (4, 4);
-        let actual = idx(24);
+        let expected = (3, 3);
+        let actual = idx(15);
         assert_eq!(actual, expected);
     }
 }

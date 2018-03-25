@@ -31,7 +31,7 @@ impl Timer {
     }
 
     pub fn is_time_up(&self) -> bool {
-        self.get_remaining_time() < 0
+        self.get_remaining_time() <= 0
     }
 
     pub fn start(&mut self) {
@@ -52,7 +52,7 @@ impl Timer {
                     break;
                 }
                 Err(_e) => {
-                    println!("Enter a whole number!");
+                    println!("Enter a number!");
                     // great, now we have to clear play_time_minutes and start_time again...
                     max_time_minutes = String::new();
                 }

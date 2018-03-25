@@ -3,7 +3,9 @@
 extern crate term;
 extern crate rand;
 
-use std::io::{self, Write};
+use std::io::{self, Write, Read};
+use std::fs::File;
+// use std::io::BufReader;
 
 mod board;
 mod game;
@@ -18,6 +20,28 @@ use timer::Timer;
 fn main() {
     println!("Welcome to Boggle®");
     println!("==================\n");
+
+    let dictionary = match File::open("dictionary.txt") {
+        Ok(mut file) => {
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).expect(
+                "something went wrong reading the file",
+            );
+            // let mut contents = String::new();
+            // buf_reader.read_to_string(&mut contents);
+            Some(contents)
+        }
+        Err(_) => {
+            println!(
+                "\nWARNING: There was no dictionary file available! \
+                \nThe game will not check that your words exist in the dictionary.\n \
+                \nFor future games, please download this file, name it \"dictionary.txt\" \
+                and place it in the same directory as this program \
+                \nhttps://www.wordgamedictionary.com/twl06/download/twl06.txt\n\n"
+            );
+            None
+        }
+    };
 
     // to "prompt" on the same line, call print! macro followed by a flush
     print!("For how many minutes would you like to play? (decimals OK) ");
@@ -39,7 +63,7 @@ fn main() {
 
     // create game with a new board
     let mut game = Game {
-        board: Board::new(),
+        board: Board::new(dictionary),
         player: Player::new(String::from(name.trim())),
         guesses: Guesses::new(),
     };

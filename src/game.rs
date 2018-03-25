@@ -2,6 +2,9 @@ use board::{Board, Piece};
 use std::cmp::Ordering;
 use std::fmt::{self, Formatter, Display};
 use std::cmp::PartialEq;
+// used in tests only
+#[allow(unused_imports)]
+use board;
 
 pub struct Game {
     pub board: Board,
@@ -142,6 +145,7 @@ impl Display for Guess {
 pub struct Guesses {
     invalid: Vec<Guess>,
     valid: Vec<Guess>,
+    not_in_dict: Vec<Guess>,
     score: usize,
 }
 
@@ -150,19 +154,35 @@ impl Guesses {
         Guesses {
             invalid: vec![],
             valid: vec![],
+            not_in_dict: vec![],
             score: 0,
         }
     }
 
     pub fn add_guess(&mut self, word: String, board: &Board) {
         let guess = Guess::new(word);
+        // skip if duplicate word
         if self.valid.contains(&guess) {
             return;
         }
         // add to proper queue based on validity
-        match guess.is_valid(board) {
-            true => self.valid.push(guess),
-            false => self.invalid.push(guess),
+        if guess.is_valid(board) {
+            // if dictionary exists, check for existence
+            // if no dictionary, then word is valid by default
+            let word_upper = guess.word.to_uppercase();
+            match board.dictionary {
+                Some(ref dict_string) => {
+                    return match dict_string.lines().position(
+                        |line| line == word_upper,
+                    ) {
+                        Some(_) => self.valid.push(guess),
+                        None => self.not_in_dict.push(guess),
+                    }
+                }
+                None => self.valid.push(guess),
+            }
+        } else {
+            self.invalid.push(guess)
         }
     }
 }
@@ -179,6 +199,11 @@ impl Display for Guesses {
 
         write!(f, "\nInvalid words\n=============\n")?;
         for guess in self.invalid.iter() {
+            write!(f, "{}\n", guess)?;
+        }
+
+        write!(f, "\nNot in dictionary\n=============\n")?;
+        for guess in self.not_in_dict.iter() {
             write!(f, "{}\n", guess)?;
         }
 
@@ -201,9 +226,9 @@ mod tests {
     fn guesses_add_guess_no_duplicates() {
         let mut my_guesses = Guesses::new();
         let my_board = Board::from(&vec!['T', 'E', 'S', 'T', 'R']);
-        let my_string = String::from("testr");
+        let my_string = String::from("test");
         my_guesses.add_guess(my_string, &my_board);
-        let my_string = String::from("testr");
+        let my_string = String::from("test");
         my_guesses.add_guess(my_string, &my_board);
         assert_eq!(my_guesses.invalid.len(), 0, "invalid is wrong length");
         assert_eq!(my_guesses.valid.len(), 1, "valid is wrong length");
@@ -301,18 +326,18 @@ mod tests {
         // should be able to try all possible combinations if collection has lots of invalid paths
         // yes, this test is quite ugly. I was trying to prove a point and it got out of hand
         let valid0 = Piece::new('A', 0);
-        let valid5 = Piece::new('B', 5);
-        let valid6 = Piece::new('C', 6);
-        let valid11 = Piece::new('D', 11);
+        let valid5 = Piece::new('B', board::BOARD_DIMENSIONS);
+        let valid6 = Piece::new('C', board::BOARD_DIMENSIONS * 2);
+        let valid11 = Piece::new('D', board::BOARD_DIMENSIONS * 3);
 
-        let invalid3 = Piece::new('E', 3);
-        let invalid4 = Piece::new('F', 4);
-        let invalid8 = Piece::new('G', 8);
-        let invalid9 = Piece::new('H', 9);
-        let invalid13 = Piece::new('I', 13);
-        let invalid14 = Piece::new('J', 14);
-        let invalid24 = Piece::new('K', 24);
-        let invalid25 = Piece::new('L', 25);
+        let invalid3 = Piece::new('E', board::BOARD_DIMENSIONS - 1);
+        let invalid4 = Piece::new('F', board::BOARD_DIMENSIONS * 2 - 1);
+        let invalid8 = Piece::new('G', board::BOARD_DIMENSIONS * 3 - 1);
+        let invalid9 = Piece::new('H', board::BOARD_DIMENSIONS - 1);
+        let invalid13 = Piece::new('I', board::BOARD_DIMENSIONS - 2);
+        let invalid14 = Piece::new('J', board::BOARD_DIMENSIONS * 2 - 2);
+        let invalid24 = Piece::new('K', board::BOARD_DIMENSIONS * 3 - 2);
+        let invalid25 = Piece::new('L', board::BOARD_DIMENSIONS - 2);
 
         let collection = vec![
             vec![&invalid3, &invalid4, &valid0],
