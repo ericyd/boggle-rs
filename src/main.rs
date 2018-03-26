@@ -6,7 +6,6 @@ extern crate rand;
 use std::io::{self, Write};
 use std::fs::File;
 use std::io::{BufReader, BufRead};
-use std::io::{Lines, Result};
 
 mod board;
 mod game;
@@ -22,9 +21,16 @@ fn main() {
     println!("Welcome to Boggle®");
     println!("==================\n");
 
-    let dictionary = match File::open("dictionary.txt") {
+    let dictionary: Option<Vec<String>> = match File::open("dictionary.txt") {
         Ok(file) => {
-            let lines = BufReader::new(file).lines();
+            let lines = BufReader::new(file)
+                .lines()
+                .filter(|line| match line {
+                    &Ok(ref _l) => true,
+                    &Err(_) => false,
+                })
+                .map(|line| line.unwrap().to_uppercase())
+                .collect();
             Some(lines)
         }
         Err(_) => {
