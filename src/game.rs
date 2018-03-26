@@ -54,9 +54,6 @@ impl Guess {
     }
 
     fn is_valid(&self, board: &Board) -> bool {
-        // TODO: Check that word exists in dictionary
-        // https://www.wordgamedictionary.com/twl06/download/twl06.txt
-
         // get vector of vector of &Piece
         // this should probably be made into its own struct or data type,
         // but this will suffice for proof of concept

@@ -24,9 +24,9 @@ pub struct Piece {
     col: i32,
 }
 
-const VOWELS: [char; 6] = ['A', 'E', 'I', 'O', 'U', 'Y'];
-const CONSONANTS_UNFRIENDLY: [char; 6] = ['J', 'K', 'Q', 'V', 'X', 'Z'];
-const CONSONANTS_FRIENDLY: [char; 14] = [
+const VOWELS: [char; 5] = ['A', 'E', 'I', 'O', 'U'];
+const CONSONANTS_UNFRIENDLY: [char; 8] = ['J', 'K', 'Q', 'V', 'X', 'W', 'Y', 'Z'];
+const CONSONANTS_FRIENDLY: [char; 13] = [
     'B',
     'C',
     'D',
@@ -40,7 +40,6 @@ const CONSONANTS_FRIENDLY: [char; 14] = [
     'R',
     'S',
     'T',
-    'W',
 ];
 
 impl Board {

@@ -34,13 +34,20 @@ fn main() {
             Some(lines)
         }
         Err(_) => {
-            println!(
+            let mut t = term::stdout().unwrap();
+
+
+            t.fg(term::color::YELLOW).unwrap();
+            (write!(
+                t,
                 "\nWARNING: There was no dictionary file available! \
                 \nThe game will not check that your words exist in the dictionary.\n \
-                \nFor future games, please download this file, name it \"dictionary.txt\" \
-                and place it in the same directory as this program \
-                \nhttps://www.wordgamedictionary.com/twl06/download/twl06.txt\n\n"
-            );
+                \nFor future games, please put a text file named \"dictionary.txt\" \
+                in the same directory as this program. \
+                \nExample dictionary: \
+                \nhttps://www.wordgamedictionary.com/twl06/download/twl06.txt\n\n\n"
+            )).unwrap();
+            t.reset().unwrap();
             None
         }
     };
