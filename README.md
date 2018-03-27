@@ -11,12 +11,13 @@ Download binaries from [releases](https://github.com/ericyd/boggle-rs/releases).
 3. head on in there! `cd boggle-rs`
 4. Build and or play! `cargo build` and/or `cargo run`
 
-Built on Linux with
-* cargo 0.25.0-nightly (e08f31018 2017-12-24)
-* rustc 1.24.0-nightly (cddc4a62d 2017-12-26)
+Built on Linux and Windows with
+* cargo 0.25.0 (2018-02-26)
+* rustc 1.24.1 (2018-02-27)
 
-Built on Windows with
-* not sure what version, slightly newer than whatever is listed above
+On Linux, use `strip boggle` on the release binary for substantial size savings.
+[credit](https://lifthrasiir.github.io/rustlog/why-is-a-rust-executable-large.html)
+
 
 
 ## Expected Output

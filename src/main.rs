@@ -3,42 +3,50 @@
 extern crate term;
 extern crate rand;
 
-use std::io::{self, Write, Read};
+use std::io::{self, Write, BufReader, BufRead};
 use std::fs::File;
-// use std::io::BufReader;
 
 mod board;
 mod game;
 mod timer;
 
 use board::Board;
-use game::Game;
-use game::Player;
-use game::Guesses;
+use game::{Game, Player, Guesses};
 use timer::Timer;
 
 fn main() {
     println!("Welcome to Boggle®");
     println!("==================\n");
 
-    let dictionary = match File::open("dictionary.txt") {
-        Ok(mut file) => {
-            let mut contents = String::new();
-            file.read_to_string(&mut contents).expect(
-                "something went wrong reading the file",
-            );
-            // let mut contents = String::new();
-            // buf_reader.read_to_string(&mut contents);
-            Some(contents)
+    // a dictionary is not required to play the game,
+    // but user should understand the consequences
+    let dictionary: Option<Vec<String>> = match File::open("dictionary.txt") {
+        Ok(file) => {
+            // TODO?: process this in a thread?
+            let lines = BufReader::new(file)
+                .lines()
+                .filter(|line| match line {
+                    &Ok(ref _l) => true,
+                    &Err(_) => false,
+                })
+                .map(|line| line.unwrap().to_uppercase())
+                .collect();
+            Some(lines)
         }
         Err(_) => {
-            println!(
+            let mut t = term::stdout().unwrap();
+
+            t.fg(term::color::YELLOW).unwrap();
+            (write!(
+                t,
                 "\nWARNING: There was no dictionary file available! \
                 \nThe game will not check that your words exist in the dictionary.\n \
-                \nFor future games, please download this file, name it \"dictionary.txt\" \
-                and place it in the same directory as this program \
-                \nhttps://www.wordgamedictionary.com/twl06/download/twl06.txt\n\n"
-            );
+                \nFor future games, please put a text file named \"dictionary.txt\" \
+                in the same directory as this program. \
+                \nExample dictionary: \
+                \nhttps://www.wordgamedictionary.com/twl06/download/twl06.txt\n\n\n"
+            )).unwrap();
+            t.reset().unwrap();
             None
         }
     };

@@ -1,7 +1,7 @@
 use board::{Board, Piece};
-use std::cmp::Ordering;
+use std::cmp::{Ordering, PartialEq};
 use std::fmt::{self, Formatter, Display};
-use std::cmp::PartialEq;
+
 // used in tests only
 #[allow(unused_imports)]
 use board;
@@ -53,9 +53,6 @@ impl Guess {
     }
 
     fn is_valid(&self, board: &Board) -> bool {
-        // TODO: Check that word exists in dictionary
-        // https://www.wordgamedictionary.com/twl06/download/twl06.txt
-
         // get vector of vector of &Piece
         // this should probably be made into its own struct or data type,
         // but this will suffice for proof of concept
@@ -78,7 +75,7 @@ impl Guess {
 }
 
 // tests all possible paths and returns true when/if one is valid
-// since we don't actually need to know the path, this is greatly simplified
+// final parameter is used to ensure no duplicate pieces
 fn is_valid_path<'a>(
     collection: &Vec<Vec<&'a Piece>>,
     index: usize,
@@ -169,15 +166,17 @@ impl Guesses {
         if guess.is_valid(board) {
             // if dictionary exists, check for existence
             // if no dictionary, then word is valid by default
+            // TODO?: process this in a thread?
             let word_upper = guess.word.to_uppercase();
-            match board.dictionary {
-                Some(ref dict_string) => {
-                    return match dict_string.lines().position(|line| line == word_upper) {
-                        Some(_) => self.valid.push(guess),
-                        None => self.not_in_dict.push(guess),
+            match &board.dictionary {
+                &Some(ref dict) => {
+                    if dict.contains(&word_upper) {
+                        self.valid.push(guess)
+                    } else {
+                        self.not_in_dict.push(guess)
                     }
                 }
-                None => self.valid.push(guess),
+                &None => self.valid.push(guess),
             }
         } else {
             self.invalid.push(guess)

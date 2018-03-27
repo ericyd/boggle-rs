@@ -13,7 +13,7 @@ pub const BOARD_DIMENSIONS: i32 = 4;
 pub struct Board {
     pieces: Vec<Piece>,
     include_borders: bool,
-    pub dictionary: Option<String>,
+    pub dictionary: Option<Vec<String>>,
 }
 
 // 0-indexed row/col Piece on the Board
@@ -24,9 +24,9 @@ pub struct Piece {
     col: i32,
 }
 
-const VOWELS: [char; 6] = ['A', 'E', 'I', 'O', 'U', 'Y'];
-const CONSONANTS_UNFRIENDLY: [char; 6] = ['J', 'K', 'Q', 'V', 'X', 'Z'];
-const CONSONANTS_FRIENDLY: [char; 14] = [
+const VOWELS: [char; 5] = ['A', 'E', 'I', 'O', 'U'];
+const CONSONANTS_UNFRIENDLY: [char; 8] = ['J', 'K', 'Q', 'V', 'X', 'W', 'Y', 'Z'];
+const CONSONANTS_FRIENDLY: [char; 13] = [
     'B',
     'C',
     'D',
@@ -40,11 +40,10 @@ const CONSONANTS_FRIENDLY: [char; 14] = [
     'R',
     'S',
     'T',
-    'W',
 ];
 
 impl Board {
-    pub fn new(dictionary: Option<String>) -> Board {
+    pub fn new(dictionary: Option<Vec<String>>) -> Board {
         let mut pieces = Vec::new();
 
         // generate letters
@@ -100,7 +99,7 @@ impl Board {
     }
 }
 
-// TODO: make this a public `board.print` function instead of implementing display
+// TODO?: make this a public `board.print` function instead of implementing display?
 impl Display for Board {
     // print all pieces sequentially
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
