@@ -1,0 +1,8 @@
+# These are required to statically link the windows binary
+# reference: https://doc.rust-lang.org/cargo/reference/config.html
+# credit: https://stackoverflow.com/questions/31770604/how-to-generate-statically-linked-executables/44387312#44387312
+
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+[target.i686-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
